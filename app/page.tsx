@@ -1,41 +1,17 @@
-"use client"
-
-import { useState } from "react";
+import Link from "next/link";
 
 export default function Home() {
-  const [data, setData] = useState(null);
-  async function createRoom() {
-    const res = await fetch("/api/room/create", { method: "POST", 
-       body: JSON.stringify({
-        expiresIn: "24h",    // Your expires field
-        maxUsers: 10         // Your maxpeople field
-      })
-     });
-    const responseData = await res.json();
-     setData(responseData);
-    console.log(responseData);
-  }
-
   return (
     <div>
-      <b>create room id</b>
-      <button onClick={createRoom} className="bg-blue-400">
-        create
-      </button>
-      {data &&(
-        <>
-        <div>
-          hi there
-          {data.data.roomInfo.roomId}
-        </div>
-        <div>
-          {data.data.roomInfo.owner}
-        </div>
-        <div>
-          <button>enter chat</button>
-        </div>
-        </>
-      ) }
+      <h1>hi welcome to incognito</h1>
+      <h2>here you can chat whatever you want with your friends</h2>
+      <Link href="/create">
+        <button className="p-7 bg-amber-300">create room</button>
+      </Link>
+      <br />
+      <Link href="/join">
+        <button className="p-7 bg-amber-700">join room</button>
+      </Link>{" "}
     </div>
   );
 }
