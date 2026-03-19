@@ -6,7 +6,7 @@ export interface Message {
 
 export interface Member{
     alias: string
-isHost: boolean
+    isHost: boolean
 }
 
 export interface Room {
