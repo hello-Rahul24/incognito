@@ -1,5 +1,5 @@
 "use client"
-import { aliasSet, roomIdSet } from "@/lib/session";
+import { aliasSet, isHostSet, roomIdSet } from "@/lib/session";
 import { useRouter } from "next/navigation";
 
 export default function CreatePage(){
@@ -11,7 +11,11 @@ export default function CreatePage(){
         const data = await response.json();
         aliasSet(data.aliasName);
         roomIdSet(data.roomId);
-        router.push("/lobby")
+
+        const isHost = "true";
+        isHostSet(isHost);
+
+        router.push(`/lobby/${data.roomId}`)
     }
    
     return(
