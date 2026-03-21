@@ -46,8 +46,8 @@ export async function  POST(req: Request){
 
     return Response.json({
         success: true,
-        message: `you are joined to ${roomId}`,
-        alias
+        alias,
+        roomId
     })
 
 }
