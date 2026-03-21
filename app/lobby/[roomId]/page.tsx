@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { aliasGet, isHostGet, roomIdGet } from "@/lib/session";
 import { useEffect, useState } from "react";
@@ -13,12 +13,27 @@ export default function LobbyPage() {
       const alias = aliasGet();
       const roomId = roomIdGet();
       const isHost = isHostGet();
-        setAlias(alias);
-        setRoomId(roomId);
-        setIsHost(isHost);
-      
+      setAlias(alias);
+      setRoomId(roomId);
+      setIsHost(isHost);
     }
   }, []);
+
+  useEffect(() => {
+    if (!roomId) {
+      return;
+    }
+    const socket = new WebSocket(`ws://localhost:8080?roomId=${roomId}`);
+    //send alias to ws to boradcast
+    socket.onopen = () => {
+      console.log("connected to websocket");
+      socket.send(JSON.stringify({"type": "JOIN", "alias": `${alias}`}));
+    };
+    //cleanup function when components unmounts
+    return () => {
+      socket.close();
+    };
+  }, [roomId, alias]);
   return (
     <div>
       this is lobby page

@@ -36,8 +36,17 @@ wss.on("connection", (socket, req) => {
 
     //when client send message
     socket.on("message", (data)=> {
-        const socketArray = rooms.get(roomId);
-        socketArray?.forEach((v)=>v.send(data));
+        const parsedData = JSON.parse(data.toString());
+        if(parsedData.type == "JOIN"){
+             const socketArray = rooms.get(roomId);
+             socketArray?.forEach((v)=> {
+                v.send(JSON.stringify({
+                    "type": "WELCOME",
+                    "alias": `${parsedData.alias}`
+                }))
+             })
+        }
     })
 
 })
+console.log("WebSocket server running on port 8080")
