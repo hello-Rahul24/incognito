@@ -1,6 +1,6 @@
 "use client";
 
-import { aliasGet, isHostGet, roomIdGet } from "@/lib/session";
+import { aliasGet, roomIdGet } from "@/lib/session";
 import { Message } from "@/types/room";
 import { useEffect, useState } from "react";
 
@@ -45,7 +45,11 @@ export default function Room() {
     <div>
         <div className="bg-gray-700 text-4xl">inbox</div>
         <div className="bg-amber-100 h-80">
-
+            {message.map((v)=>{
+                return <div key={v.sentby}>
+                    {v.content}
+                </div>
+            })}
         </div>
         <div className="bg-gray-700">
             <input type="type your messages" className="bg-amber-400"/>
