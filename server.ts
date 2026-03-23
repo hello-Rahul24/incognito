@@ -1,52 +1,66 @@
 import { WebSocketServer, WebSocket } from "ws";
 
+const wss = new WebSocketServer({ port: 8080 });
 
-const wss = new WebSocketServer({port: 8080});
-
-const rooms = new Map<string, WebSocket[]>
+const rooms = new Map<string, { socket: WebSocket; alias: string }[]>();
 
 wss.on("connection", (socket, req) => {
-    if(!req.url){
-        socket.close();
-        return;
+  if (!req.url) {
+    socket.close();
+    return;
+  }
+  const parsedUrl = new URL(req.url, "http://localhost:8080");
+  const roomId = parsedUrl.searchParams.get("roomId");
+  if (!roomId) {
+    socket.close();
+    return;
+  }
+
+  //if user disconnects
+  socket.on("close", () => {
+    const socketArray = rooms.get(roomId);
+    const newSocketArray = socketArray?.filter((v) => v.socket !== socket);
+    if (newSocketArray) {
+      rooms.set(roomId, newSocketArray);
     }
-    const parsedUrl = new URL(req.url, "http://localhost:8080");
-    const roomId = parsedUrl.searchParams.get("roomId")
-    if(!roomId){
-        socket.close();
-        return;
+    if (newSocketArray?.length == 0) {
+      rooms.delete(roomId);
     }
-    if(rooms.get(roomId)){
+  });
+
+  //when client send message
+  socket.on("message", (data) => {
+    const parsedData = JSON.parse(data.toString());
+
+    //if message type join
+    if (parsedData.type == "JOIN") {
+      if (rooms.get(roomId)) {
         //it will give an array
-        rooms.get(roomId)?.push(socket);
-    }else{
-        rooms.set(roomId, [socket]);
+        rooms.get(roomId)?.push({ socket: socket, alias: parsedData.alias });
+      } else {
+        rooms.set(roomId, [{ socket: socket, alias: parsedData.alias }]);
+      }
+      //send existing members to the new user only
+      socket.send(JSON.stringify({
+        type: "EXIST_MEMBERS",
+        members: rooms.get(roomId)?.map((v)=> v.alias)
+      }))
+
+
+      const socketArray = rooms.get(roomId);
+      //broadcasting everyone
+      socketArray?.forEach((v) => {
+        if(v.socket != socket){
+          v.socket.send(
+          JSON.stringify({
+            type: "WELCOME",
+            alias: `${parsedData.alias}`,
+          })
+        );
+        }
+        
+      });
     }
-    //if user disconnects
-    socket.on("close", ()=> {
-        const socketArray = rooms.get(roomId);
-        const newSocketArray = socketArray?.filter((v)=> v !== socket);
-        if(newSocketArray){
-            rooms.set(roomId, newSocketArray)
-        }
-        if(newSocketArray?.length == 0){
-            rooms.delete(roomId);
-        }
-    })
-
-    //when client send message
-    socket.on("message", (data)=> {
-        const parsedData = JSON.parse(data.toString());
-        if(parsedData.type == "JOIN"){
-             const socketArray = rooms.get(roomId);
-             socketArray?.forEach((v)=> {
-                v.send(JSON.stringify({
-                    "type": "WELCOME",
-                    "alias": `${parsedData.alias}`
-                }))
-             })
-        }
-    })
-
-})
-console.log("WebSocket server running on port 8080")
+  });
+});
+console.log("WebSocket server running on port 8080");
