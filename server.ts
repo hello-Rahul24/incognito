@@ -75,7 +75,7 @@ wss.on("connection", (socket, req) => {
       socketArray?.forEach((v)=> {
         v.socket.send(JSON.stringify({
           type: "MESSAGE",
-          payload: parsedData.payload`
+          payload: parsedData.payload
         }))
       })
     }

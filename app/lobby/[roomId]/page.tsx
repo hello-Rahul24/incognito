@@ -65,9 +65,9 @@ export default function LobbyPage() {
       <h1>this is your alias name {alias}</h1>
       <h4>this is your roomId: {roomId}</h4>
       {isHost === "true" ? "you are the host" : "wait for the host to start"}
-      {members?.map((v)=> {
+      {members?.map((v,id)=> {
         return(
-          <div key={v}>
+          <div key={id}>
             {v}
           </div>
         )

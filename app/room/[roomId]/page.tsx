@@ -48,10 +48,11 @@ export default function Room() {
         type: "MESSAGE",
         payload: {
             content: inputMessage,
-            sentAt: "",
+            sentAt: new Date().toISOString(),
             sentby: alias
         }
-    }))
+    }));
+    setInputMessage("");
   }
 
   return (
@@ -59,14 +60,16 @@ export default function Room() {
     <div>
         <div className="bg-gray-700 text-4xl">inbox</div>
         <div className="bg-amber-100 h-80">
-            {message.map((v)=>{
-                return <div key={v.sentby}>
+            {message.map((v,id)=>{
+                return <div key={id}>
                     {v.content}
+                    {v.sentby}
+                    {v.sentAt}
                 </div>
             })}
         </div>
         <div className="bg-gray-700">
-            <input onChange={(e)=>setInputMessage(e.target.value)}  type="type your messages" className="bg-amber-400"/>
+            <input onChange={(e)=>setInputMessage(e.target.value)} type="text" placeholder="type your message" className="bg-amber-400"/>
             <button onClick={handelInputBox}>Send</button>
         </div>
     </div>
