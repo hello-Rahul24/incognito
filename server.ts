@@ -1,8 +1,14 @@
 import { WebSocketServer, WebSocket } from "ws";
+import { Message, Room } from "./types/room";
+import { Redis } from "@upstash/redis";
 
 const wss = new WebSocketServer({ port: 8080 });
-
 const rooms = new Map<string, { socket: WebSocket; alias: string }[]>();
+
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN
+})
 
 wss.on("connection", (socket, req) => {
   if (!req.url) {
@@ -29,7 +35,7 @@ wss.on("connection", (socket, req) => {
   });
 
   //when client send message
-  socket.on("message", (data) => {
+  socket.on("message",async (data) =>  {
     const parsedData = JSON.parse(data.toString());
 
     //if message type join
@@ -71,6 +77,19 @@ wss.on("connection", (socket, req) => {
     }
     //type === MESSAGE
     if(parsedData.type === "MESSAGE"){
+      //get the room
+     const room:Room|null =await redis.get(`room:${roomId}`);
+     const message : Message = {
+      content: parsedData.payload.content,
+      sentAt: parsedData.payload.sentAt,
+      sentby: parsedData.payload.sentby
+     }
+     if(room){
+     room.messages.push(message)
+     await redis.set(`room:${roomId}`,room);
+     }
+    
+
       const socketArray = rooms.get(roomId);
       socketArray?.forEach((v)=> {
         v.socket.send(JSON.stringify({

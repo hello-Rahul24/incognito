@@ -42,6 +42,19 @@ export default function Room() {
         socket.close();
     }
   },[roomId, alias]);
+  //restore the messages
+  useEffect(() => {
+    async function fetchMsg() {
+        if(roomId){
+            const res =await fetch(`/api/room/${roomId}`);
+        const data = await res.json();
+        console.log(data);
+        setMessage(data.messages || []);
+        }
+        
+    }
+    fetchMsg();
+  },[roomId]);
 
   function handelInputBox(){
     socketRef.current?.send(JSON.stringify({

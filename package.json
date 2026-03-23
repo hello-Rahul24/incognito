@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "server": "npx tsx --env-file=.env server.ts"
   },
   "dependencies": {
     "@types/jsonwebtoken": "^9.0.10",
