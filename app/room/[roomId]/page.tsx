@@ -2,12 +2,14 @@
 
 import { aliasGet, roomIdGet } from "@/lib/session";
 import { Message } from "@/types/room";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function Room() {
   const [message, setMessage] = useState<Message[]>([]);
   const [alias, setAlias] = useState<string | null>("");
   const [roomId, setRoomId] = useState<string | null>("");
+  const [inputMessage, setInputMessage] = useState<string>("");
+  const socketRef = useRef<WebSocket|null>(null);
   //const [isHost, setIsHost] = useState<string | null>("false");
 
   useEffect(() => {
@@ -24,6 +26,7 @@ export default function Room() {
       return;
     }
     const socket = new WebSocket(`ws://localhost:8080?roomId=${roomId}`);
+    socketRef.current = socket;
     socket.onopen = ()=>{
         socket.send(JSON.stringify({type: "JOIN", "alias": `${alias}`}));
     }
@@ -40,6 +43,17 @@ export default function Room() {
     }
   },[roomId, alias]);
 
+  function handelInputBox(){
+    socketRef.current?.send(JSON.stringify({
+        type: "MESSAGE",
+        payload: {
+            content: inputMessage,
+            sentAt: "",
+            sentby: alias
+        }
+    }))
+  }
+
   return (
     <>
     <div>
@@ -52,8 +66,8 @@ export default function Room() {
             })}
         </div>
         <div className="bg-gray-700">
-            <input type="type your messages" className="bg-amber-400"/>
-            <button>Send</button>
+            <input onChange={(e)=>setInputMessage(e.target.value)}  type="type your messages" className="bg-amber-400"/>
+            <button onClick={handelInputBox}>Send</button>
         </div>
     </div>
     </>
