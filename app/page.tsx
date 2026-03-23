@@ -11,7 +11,7 @@ export default function Home() {
       <br />
       <Link href="/join">
         <button className="p-7 bg-amber-700">join room</button>
-      </Link>{" "}
+      </Link>
     </div>
   );
 }

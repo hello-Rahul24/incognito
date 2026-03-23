@@ -1,13 +1,17 @@
 "use client";
 
 import { aliasGet, isHostGet, roomIdGet } from "@/lib/session";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 
 export default function LobbyPage() {
   const [alias, setAlias] = useState<string | null>("");
   const [roomId, setRoomId] = useState<string | null>("");
   const [isHost, setIsHost] = useState<string | null>("false");
   const [members, setMembers] = useState<string[]>([]);
+  const router = useRouter();
+
+  const socketRef = useRef<WebSocket|null>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -25,6 +29,7 @@ export default function LobbyPage() {
       return;
     }
     const socket = new WebSocket(`ws://localhost:8080?roomId=${roomId}`);
+    socketRef.current = socket;
     //send alias to ws to boradcast
     socket.onopen = () => {
       console.log("connected to websocket");
@@ -33,11 +38,14 @@ export default function LobbyPage() {
     };
     socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        if(data.type == "WELCOME"){
+        if(data.type === "WELCOME"){
           setMembers((prev) => [...prev , data.alias]);
         }
-        if(data.type == "EXIST_MEMBERS"){
+        if(data.type === "EXIST_MEMBERS"){
           setMembers(data.members);
+        }
+        if(data.type === "START_ROOM"){
+          router.push(`/room/${roomId}`)
         }
     }
     //cleanup function when components unmounts
@@ -45,6 +53,12 @@ export default function LobbyPage() {
       socket.close();
     };
   }, [roomId, alias]);
+
+  function handelStart(){
+    socketRef.current?.send(JSON.stringify({type: "START_ROOM"}));
+  }
+
+
   return (
     <div>
       this is lobby page
@@ -58,6 +72,11 @@ export default function LobbyPage() {
           </div>
         )
       })}
+      {isHost === "true" && (
+        <div>
+          <button onClick={handelStart}>start the chaos</button>
+        </div>
+      )}
     </div>
   );
 }

@@ -61,6 +61,24 @@ wss.on("connection", (socket, req) => {
         
       });
     }
+
+    //type ==== START_ROOM
+    if(parsedData.type === "START_ROOM"){
+      const socketArray = rooms.get(roomId);
+      socketArray?.forEach((v)=> {
+        v.socket.send(JSON.stringify({type: "START_ROOM"}))
+      })
+    }
+    //type === MESSAGE
+    if(parsedData.type === "MESSAGE"){
+      const socketArray = rooms.get(roomId);
+      socketArray?.forEach((v)=> {
+        v.socket.send(JSON.stringify({
+          type: "MESSAGE",
+          payload: parsedData.payload`
+        }))
+      })
+    }
   });
 });
 console.log("WebSocket server running on port 8080");
