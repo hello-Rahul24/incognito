@@ -22,7 +22,7 @@ export default function Room() {
     const alias = aliasGet();
     const roomId = roomIdGet();
     //const isHost = isHostGet();
-    
+
     //route protection
     if (!alias || !roomId) {
       router.push("/");
@@ -100,6 +100,7 @@ export default function Room() {
         </div>
         <div className="bg-gray-700">
           <input
+            value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             type="text"
             placeholder="type your message"
