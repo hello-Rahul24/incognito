@@ -90,8 +90,8 @@ export default function Room() {
 
   return (
     <>
-      <div>
-        <div className="bg-gray-700 text-4xl">inbox</div>
+      {!wsError ? <div>
+         <div className="bg-gray-700 text-4xl">inbox</div>
         <div className="bg-amber-100 h-80">
           {message.map((v, id) => {
             return (
@@ -113,7 +113,9 @@ export default function Room() {
           />
           <button onClick={handelInputBox}>Send</button>
         </div>
-      </div>
+      </div> : <div>
+        <h1>websocket connection lost</h1>
+        </div>}
     </>
   );
 }
