@@ -11,6 +11,7 @@ export default function Room() {
   const [alias, setAlias] = useState<string | null>("");
   const [roomId, setRoomId] = useState<string | null>("");
   const [inputMessage, setInputMessage] = useState<string>("");
+  const [wsError, setWsError] = useState(false)
   //const [isHost, setIsHost] = useState<string | null>("false");
   const socketRef = useRef<WebSocket | null>(null);
 
@@ -51,6 +52,10 @@ export default function Room() {
         setMessage((prev) => [...prev, data.payload]);
       }
     };
+    //on ws connection failure
+    socket.onerror = ()=> {
+      setWsError(true);
+    }
     //cleanup logic
     return () => {
       socket.close();
