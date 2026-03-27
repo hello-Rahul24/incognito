@@ -11,11 +11,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useState } from "react";
 
 export default function CreatePage() {
   const router = useRouter();
+  const [loader, setLoader] = useState<boolean>(false);
 
   async function handelRoomGenarate() {
+    setLoader(true);
     const response = await fetch("/api/room/create", {
       method: "POST",
     });
@@ -27,10 +30,16 @@ export default function CreatePage() {
     isHostSet(isHost);
 
     router.push(`/lobby/${data.roomId}`);
+    setLoader(false);
   }
 
   return (
     <main className="flex flex-col items-center  w-full h-screen bg-white">
+      {loader && (
+        <div className="fixed inset-0 bg-white flex items-center justify-center z-50">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-[#7f77dd] border-t-transparent"></div>
+        </div>
+      )}
       {/* top create a new room blurry  */}
       <div className="flex  m-6 flex-col items-center bg-white px-6 py-4 rounded-3xl backdrop-blur-2xl w-96 ">
         <span className="font-space text-2xl">
@@ -92,7 +101,16 @@ export default function CreatePage() {
             </Button>
           </CardContent>
         </Card>
-        <Button size={"lg"} className={"py-6 hover:animate-out bg-[#7f77dd] hover:bg-white hover:text-black font-bold"} variant={"default"}>Create Room</Button>
+        <Button
+          onClick={handelRoomGenarate}
+          size={"lg"}
+          className={
+            "py-6 hover:animate-out bg-[#7f77dd] hover:bg-white hover:text-black font-bold"
+          }
+          variant={"default"}
+        >
+          {loader ? "loading..." : "Create Room"}
+        </Button>
       </Card>
     </main>
   );
