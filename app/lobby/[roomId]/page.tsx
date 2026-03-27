@@ -3,6 +3,16 @@
 import { aliasGet, isHostGet, roomIdGet } from "@/lib/session";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 export default function LobbyPage() {
   const [alias, setAlias] = useState<string | null>("");
@@ -11,7 +21,7 @@ export default function LobbyPage() {
   const [members, setMembers] = useState<string[]>([]);
   const router = useRouter();
 
-  const socketRef = useRef<WebSocket|null>(null);
+  const socketRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -33,34 +43,33 @@ export default function LobbyPage() {
     //send alias to ws to boradcast
     socket.onopen = () => {
       console.log("connected to websocket");
-      socket.send(JSON.stringify({"type": "JOIN", "alias": `${alias}`}));
-
+      socket.send(JSON.stringify({ type: "JOIN", alias: `${alias}` }));
     };
     socket.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        if(data.type === "WELCOME"){
-          setMembers((prev) => [...prev , data.alias]);
-        }
-        if(data.type === "EXIST_MEMBERS"){
-          setMembers(data.members);
-        }
-        if(data.type === "START_ROOM"){
-          router.push(`/room/${roomId}`)
-        }
-    }
+      const data = JSON.parse(event.data);
+      if (data.type === "WELCOME") {
+        setMembers((prev) => [...prev, data.alias]);
+      }
+      if (data.type === "EXIST_MEMBERS") {
+        setMembers(data.members);
+      }
+      if (data.type === "START_ROOM") {
+        router.push(`/room/${roomId}`);
+      }
+    };
     //cleanup function when components unmounts
     return () => {
       socket.close();
     };
   }, [roomId, alias]);
 
-  function handelStart(){
-    socketRef.current?.send(JSON.stringify({type: "START_ROOM"}));
+  function handelStart() {
+    socketRef.current?.send(JSON.stringify({ type: "START_ROOM" }));
   }
 
-
   return (
-    <div>
+    <main className="bg-white w-full h-screen flex items-center flex-col gap-3">
+      {/*<div>
       this is lobby page
       <h1>this is your alias name {alias}</h1>
       <h4>this is your roomId: {roomId}</h4>
@@ -77,6 +86,42 @@ export default function LobbyPage() {
           <button onClick={handelStart}>start the chaos</button>
         </div>
       )}
-    </div>
+    </div> */}
+      {/* navbar */}
+      <div className="h-24 w-lg bg-amber-800 mt-10 mb-5 mx-10 flex items-center justify-between px-6 rounded-xl">
+        <div className="bg-cyan-400 flex items-center gap-3 px-4 py-2 rounded-lg">
+          <span className="font-semibold">Incognito</span>
+          <span className="text-sm opacity-70">Lobby</span>
+        </div>
+        <div className="bg-red-500 px-4 py-2 rounded-lg text-white font-medium">
+          Live
+        </div>
+      </div>
+      {/* showing room info */}
+      <div className="bg-fuchsia-500 border-2 w-lg h-48 rounded-2xl p-4 flex flex-col items-center justify-between  gap-2">
+        <span>ROOM CODE - TAP TO COPY</span>
+        <div className="bg-amber-200 py-2 px-14 text-2xl">{roomId}</div>
+        <span>share with your friends</span>
+      </div>
+      {/* showing joined player */}
+        <Card className="w-lg">
+          <CardHeader>
+            <CardTitle>
+              IN THE ROOM
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+              {/* render all joining player */}
+              {members?.map((v,id)=> {
+                return(<Card key={id}>
+                  <CardContent className="flex gap-1">
+                   <h2>Player</h2>{id}
+                  </CardContent>
+                </Card>)
+              })}
+          </CardContent>
+        </Card>
+        <Button  onClick={handelStart} className={"w-lg bg-[#7f77dd] py-6 cursor-pointer "}  size={"lg"}>Start the Chaos</Button>
+    </main>
   );
 }
