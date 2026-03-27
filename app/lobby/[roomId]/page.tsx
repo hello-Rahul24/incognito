@@ -104,24 +104,30 @@ export default function LobbyPage() {
         <span>share with your friends</span>
       </div>
       {/* showing joined player */}
-        <Card className="w-lg">
-          <CardHeader>
-            <CardTitle>
-              IN THE ROOM
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-              {/* render all joining player */}
-              {members?.map((v,id)=> {
-                return(<Card key={id}>
-                  <CardContent className="flex gap-1">
-                   <h2>Player</h2>{id}
-                  </CardContent>
-                </Card>)
-              })}
-          </CardContent>
-        </Card>
-        <Button  onClick={handelStart} className={"w-lg bg-[#7f77dd] py-6 cursor-pointer "}  size={"lg"}>Start the Chaos</Button>
+      <Card className="w-lg">
+        <CardHeader className="backdrop-blur-xl">
+          <CardTitle >IN THE ROOM {members.length}/8</CardTitle>
+        </CardHeader>
+        <CardContent className="max-h-48 mt-2 overflow-y-auto space-y-3 pr-2">
+          {members?.map((v, id) => {
+            return (
+              <Card className="bg-amber-600" key={id}>
+                <CardContent className="flex items-center justify-between  px-4 py-3">
+                  <h2 className="font-medium">Player {id + 1}</h2>
+                  <span className="text-sm text-muted-foreground">Joined</span>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </CardContent>
+      </Card>
+      <Button
+        onClick={handelStart}
+        className={"w-lg bg-[#7f77dd] py-6 cursor-pointer "}
+        size={"lg"}
+      >
+        Start the Chaos
+      </Button>
     </main>
   );
 }
