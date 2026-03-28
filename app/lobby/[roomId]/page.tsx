@@ -121,13 +121,14 @@ export default function LobbyPage() {
           })}
         </CardContent>
       </Card>
-      <Button
+      
+     {isHost== "true"? <Button
         onClick={handelStart}
         className={"w-lg bg-[#7f77dd] py-6 cursor-pointer "}
         size={"lg"}
       >
         Start the Chaos
-      </Button>
+      </Button> : <Button variant={"outline"} className={"bg-white w-lg text-black  py-6"}>waiting for host to start the chaos</Button>} 
     </main>
   );
 }
